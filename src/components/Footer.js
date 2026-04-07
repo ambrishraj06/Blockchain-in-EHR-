@@ -1,117 +1,46 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faInstagram,
-  faFacebookF,
-  faLinkedinIn,
-} from "@fortawesome/free-brands-svg-icons";
+import { faInstagram, faFacebookF, faLinkedinIn } from "@fortawesome/free-brands-svg-icons";
 
 const Footer = () => {
   return (
-    <div className="bg-gray-800 text-white p-6 ">
-      <div className="container mx-auto">
-        <div className="flex justify-between items-start mb-6 mt-60">
-          {/* Contact Information */}
-          <div className="w-1/3">
-            <h3 className="font-bold text-xl mb-2">Contact Information</h3>
-            <p>
-              <span className="font-bold">Address:</span> 123 Street, City,
-              Country
-            </p>
-            <p>
-              <span className="font-bold">Phone:</span> +123 456 7890
-            </p>
-            <p>
-              <span className="font-bold">Email:</span> example@company.com
-            </p>
-          </div>
+    <footer className="relative bg-dark-100 border-t border-white/5">
+      {/* Gradient line */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-500/50 to-transparent" />
 
-          {/* Useful Links */}
-          <div className="w-1/3">
-            <h3 className="font-bold text-xl mb-2">Useful Links</h3>
-            <ul className="space-y-2">
-              <li>
-                <a href="#" className="hover:underline">
-                  About Us
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="flex flex-col items-center text-center">
+          {/* Brand */}
+          <div className="max-w-md">
+            <h3 className="text-xl font-display font-bold mb-4">
+              <span className="gradient-text">Secure</span><span className="text-white">EHR</span>
+            </h3>
+            <p className="text-gray-500 text-sm leading-relaxed mb-6">
+              Decentralized Electronic Health Records powered by Ethereum blockchain and IPFS technology.
+            </p>
+            <div className="flex justify-center gap-3">
+              {[
+                { icon: faInstagram, href: "https://instagram.com" },
+                { icon: faFacebookF, href: "https://facebook.com" },
+                { icon: faLinkedinIn, href: "https://linkedin.com" },
+              ].map((s, i) => (
+                <a key={i} href={s.href} target="_blank" rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-500 transition-all duration-300 hover:bg-primary-500/10 hover:border-primary-500/30 hover:text-primary-500 hover:scale-110"
+                >
+                  <FontAwesomeIcon icon={s.icon} />
                 </a>
-              </li>
-              <li>
-                <a href="#" className="hover:underline">
-                  Services
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:underline">
-                  FAQs
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:underline">
-                  Privacy Policy
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div className="w-1/3">
-            <h3 className="font-bold text-xl mb-2">Other Links</h3>
-            <ul className="space-y-2">
-              <li>
-                <a href="#" className="hover:underline">
-                  Security Partners
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:underline">
-                  Medical Donors
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:underline">
-                  Sponsors
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:underline">
-                  Careers
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:underline">
-                  Board Members Information
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Social Media Icons */}
-          <div className="w-1/3 flex justify-end items-center">
-            <a
-              href="https://instagram.com/company"
-              className="mr-4"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FontAwesomeIcon icon={faInstagram} size="2x" />
-            </a>
-            <a
-              href="https://facebook.com/company"
-              className="mr-4"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FontAwesomeIcon icon={faFacebookF} size="2x" />
-            </a>
-            <a
-              href="https://linkedin.com/company"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FontAwesomeIcon icon={faLinkedinIn} size="2x" />
-            </a>
+              ))}
+            </div>
           </div>
         </div>
+
+        {/* Bottom */}
+        <div className="mt-14 pt-8 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-gray-600 text-xs">© 2026 SecureEHR. All rights reserved.</p>
+          <p className="text-gray-600 text-xs">Built with Ethereum • IPFS • React</p>
+        </div>
       </div>
-    </div>
+    </footer>
   );
 };
 

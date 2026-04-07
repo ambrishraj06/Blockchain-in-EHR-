@@ -20,15 +20,12 @@ import ViewPatientList from "./components/ViewPatientList";
 import ViewProfile from "./components/ViewProfile";
 import ViewDoctorProfile from "./components/ViewDoctorProfile";
 import ViewDiagnosticProfile from "./components/ViewDiagnosticProfile";
-import AboutUs from "./components/AboutPage"; 
-
-
+import DoctorViewPatient from "./components/DoctorViewRecords";
+import AboutUs from "./components/AboutPage";
 
 const BrowseRouter = () => {
   const [web3, setWeb3] = useState(null);
-  const [contract, setContract] = useState(null);
   const [accounts, setAccounts] = useState([]);
-  const [loggedInPatient, setLoggedInPatient] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -37,7 +34,6 @@ const BrowseRouter = () => {
         try {
           await window.ethereum.enable();
           setWeb3(web3Instance);
-
           const fetchedAccounts = await web3Instance.eth.getAccounts();
           setAccounts(fetchedAccounts);
         } catch (error) {
@@ -47,78 +43,48 @@ const BrowseRouter = () => {
         console.log("Please install MetaMask extension");
       }
     };
-
     init();
   }, []);
+
   return (
     <BrowserRouter>
-
       <Routes>
-      <Route path="/AboutPage" element={<AboutUs></AboutUs>}></Route>
+        <Route path="/" element={<LandingPage_1 />} />
+        <Route path="/AboutPage" element={<AboutUs />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
 
-        <Route path="/" element={<LandingPage_1></LandingPage_1>}></Route>
-        <Route path="/register" element={<RegisterPage></RegisterPage>}></Route>
-        
-        <Route
-          path="/patient_registration"
-          element={<PatientRegistry></PatientRegistry>}
-        ></Route>
-        <Route
-          path="/doctor_registration"
-          element={<DoctorRegistry></DoctorRegistry>}
-        ></Route>
-        <Route
-          path="/diagnostic_registration"
-          element={<DiagnosticRegistry></DiagnosticRegistry>}
-        ></Route>
-        <Route
-          path="/patient_login"
-          element={<PatientLogin></PatientLogin>}
-        ></Route>
-        <Route
-          path="/doctor_login"
-          element={<DoctorLogin></DoctorLogin>}
-        ></Route>
-      
-        <Route
-          path="/diagnostic_login"
-          element={<DiagnosticLogin></DiagnosticLogin>}
-        ></Route>
-        <Route path="/login" element={<LoginPage />}></Route>
-        <Route path="/patient/:hhNumber" element={<PatientDashBoard />}></Route>
-        <Route path="/doctor/:hhNumber" element={<DoctorDashBoard />}></Route>
-        <Route path="/diagnostic/:hhNumber" element={<DiagnosticDashBoard />}></Route>
-        <Route
-          path="/patient/:hhNumber/viewprofile"
-          element={<ViewProfile />}
-        ></Route>
-        <Route
-          path="/doctor/:hhNumber/viewdoctorprofile"
-          element={<ViewDoctorProfile />}
-        ></Route>
-        <Route
-          path="/diagnostic/:hhNumber/viewdiagnosticprofile"
-          element={<ViewDiagnosticProfile />}
-        ></Route>
-        <Route
-          path="/patient/:hhNumber/viewrecords"
-          element={<ViewPatientRecords />}
-        ></Route>
-        
-        <Route 
-        path="/diagnostic/:hhNumber/diagnosticform" 
-        element={<DiagnosticForm></DiagnosticForm>}>
-        </Route>
+        {/* Registration */}
+        <Route path="/patient_registration" element={<PatientRegistry />} />
+        <Route path="/doctor_registration" element={<DoctorRegistry />} />
+        <Route path="/diagnostic_registration" element={<DiagnosticRegistry />} />
 
-       
-        <Route
-          path="/doctor/:hhNumber/patientlist"
-          element={<ViewPatientList />}
-        ></Route>
-       
-       
+        {/* Login */}
+        <Route path="/patient_login" element={<PatientLogin />} />
+        <Route path="/doctor_login" element={<DoctorLogin />} />
+        <Route path="/diagnostic_login" element={<DiagnosticLogin />} />
+
+        {/* Dashboards */}
+        <Route path="/patient/:hhNumber" element={<PatientDashBoard />} />
+        <Route path="/doctor/:hhNumber" element={<DoctorDashBoard />} />
+        <Route path="/diagnostic/:hhNumber" element={<DiagnosticDashBoard />} />
+
+        {/* Profiles */}
+        <Route path="/patient/:hhNumber/viewprofile" element={<ViewProfile />} />
+        <Route path="/doctor/:hhNumber/viewdoctorprofile" element={<ViewDoctorProfile />} />
+        <Route path="/diagnostic/:hhNumber/viewdiagnosticprofile" element={<ViewDiagnosticProfile />} />
+
+        {/* Patient Records & IPFS Upload */}
+        <Route path="/patient/:hhNumber/viewrecords" element={<ViewPatientRecords />} />
+
+        {/* Doctor Features */}
+        <Route path="/doctor/:hhNumber/patientlist" element={<ViewPatientList />} />
+        <Route path="/doctor/:hhNumber/viewpatient/:patientHH" element={<DoctorViewPatient />} />
+
+        {/* Diagnostic Features */}
+        <Route path="/diagnostic/:hhNumber/diagnosticform" element={<DiagnosticForm />} />
       </Routes>
-      <Footer></Footer>
+      <Footer />
     </BrowserRouter>
   );
 };

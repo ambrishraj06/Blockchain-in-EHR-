@@ -2,129 +2,71 @@ import React, { useState, useEffect } from "react";
 import PatientRegistration from "../build/contracts/PatientRegistration.json";
 import Web3 from "web3";
 import { useNavigate, useParams } from "react-router-dom";
-import "../CSS/PatientWritePermission.css";
-import "../big_css/CreateEHR.css";
 import NavBar_Logout from "./NavBar_Logout";
 
-
 const ViewProfile = () => {
-  const { hhNumber } = useParams(); // Retrieve the hhNumber from the URL parameter
+  const { hhNumber } = useParams();
   const navigate = useNavigate();
-  const [address, setAddress] = useState(null);
-  const [web3, setWeb3] = useState(null);
-  const [contract, setContract] = useState(null);
   const [patientDetails, setPatientDetails] = useState(null);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     const init = async () => {
-      // Check if Web3 is injected by MetaMask or any other provider
       if (window.ethereum) {
-        const web3Instance = new Web3(window.ethereum);
-        setWeb3(web3Instance);
-
-        // Get the contract instance
-        const networkId = await web3Instance.eth.net.getId();
-        const deployedNetwork = PatientRegistration.networks[networkId];
-        const contractInstance = new web3Instance.eth.Contract(
-          PatientRegistration.abi,
-          deployedNetwork && deployedNetwork.address,
-        );
-        setContract(contractInstance);
-        if (!contract) return;
-
+        const web3 = new Web3(window.ethereum);
+        const networkId = await web3.eth.net.getId();
+        const contract = new web3.eth.Contract(PatientRegistration.abi, PatientRegistration.networks[networkId]?.address);
         try {
-          // Call the getPatientDetails function of the smart contract
           const result = await contract.methods.getPatientDetails(hhNumber).call();
           setPatientDetails(result);
-        } catch (error) {
-          console.error('Error retrieving patient details:', error);
-          setError('Error retrieving patient details');
-        }
-      } else {
-        console.log('Please install MetaMask extension');
-        setError('Please install MetaMask extension');
+        } catch (e) { console.error("Error:", e); }
       }
     };
-
     init();
-  }, []);
+  }, [hhNumber]);
 
-  useEffect(() => {
-    const fetchPatientDetails = async () => {
-      if (!contract || !hhNumber) return;
+  const fields = patientDetails ? [
+    { label: "Full Name", value: patientDetails.name },
+    { label: "Date of Birth", value: patientDetails.dateOfBirth },
+    { label: "Gender", value: patientDetails.gender },
+    { label: "Blood Group", value: patientDetails.bloodGroup },
+    { label: "Address", value: patientDetails.homeAddress },
+    { label: "Email", value: patientDetails.email },
+    { label: "Wallet", value: patientDetails.walletAddress },
+    { label: "HH Number", value: hhNumber },
+  ] : [];
 
-      try {
-        // Call the getPatientDetails function of the smart contract
-        const result = await contract.methods.getPatientDetails(hhNumber).call();
-        setPatientDetails(result);
-      } catch (error) {
-        console.error('Error retrieving patient details:', error);
-      }
-    };
-
-    fetchPatientDetails();
-  }, [contract, hhNumber]);
-
-
-  const cancelOperation = async () => {
-    try {
-    navigate("/patient/"+hhNumber);
-    } catch (error) {
-      console.error("Error checking permission:", error);
-    }
-  };
-  
   return (
-    <div>
-    <NavBar_Logout></NavBar_Logout>
-    <div className="bg-gradient-to-b from-black to-gray-800 p-4 sm:p-10 font-mono text-white flex flex-col justify-center items-center">
-        <div className="h-full max-w-8xl bg-gray-700 p-24 rounded-lg shadow-lg flex flex-col justify-center items-center">
-
-        <h1 className="text-3xl sm:text-4xl font-bold mb-6">
-          Profile
-        </h1>
-        {patientDetails && (
-            <div>
-              <center>
-          <p className="text-xl sm:text-2xl mb-3">
-            Name : {" "}
-            <span className="font-bold text-yellow-500">{patientDetails.name}</span>
-          </p>
-          <p className="text-xl sm:text-2xl mb-3">
-            DOB : {" "}
-            <span className="font-bold text-yellow-500">{patientDetails.dateOfBirth}</span>
-          </p>
-          <p className="text-xl sm:text-2xl mb-3">
-            Gender : {" "}
-            <span className="font-bold text-yellow-500">{patientDetails.gender}</span>
-          </p>    
-          <p className="text-xl sm:text-2xl mb-6">
-            Blood Group : {" "}
-          <span className="font-bold text-yellow-500">{patientDetails.bloodGroup}</span>
-          </p>
-          <p className="text-xl sm:text-2xl mb-3">
-            Address : {" "}
-            <span className="font-bold text-yellow-500">{patientDetails.homeAddress}</span>
-          </p>
-          <p className="text-xl sm:text-2xl mb-3">
-            Email-Id : {" "}
-            <span className="font-bold text-yellow-500">{patientDetails.email}</span>
-          </p>
-          </center>
-        </div>
-        )}
-          <div className="col-span-full">
-            <button
-              onClick={cancelOperation}
-              className="px-5 py-2.5 bg-custom-teal text-white font-bold text-lg rounded-lg cursor-pointer mt-3 mr-5 transition-transform transition-background-color duration-300 ease-in hover:bg-gray-400 transform hover:scale-105"
-            >
-              Close
-            </button>     
+    <div className="min-h-screen bg-dark">
+      <NavBar_Logout />
+      <div className="min-h-screen flex items-center justify-center pt-24 pb-16 px-4">
+        <div className="w-full max-w-2xl animate-fadeInUp">
+          <div className="glass-card p-10">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h1 className="text-2xl font-display font-bold text-white">Patient Profile</h1>
+                <p className="text-gray-500 text-sm mt-1">Your personal health information</p>
+              </div>
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary-500 to-emerald-500 flex items-center justify-center text-white">
+                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+              </div>
             </div>
+            {patientDetails && (
+              <div className="space-y-0 rounded-xl overflow-hidden border border-white/5">
+                {fields.map((f, i) => (
+                  <div key={i} className="data-row">
+                    <span className="text-gray-500 text-sm font-medium">{f.label}</span>
+                    <span className="text-white text-sm font-medium text-right max-w-[60%] truncate">{f.value}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button onClick={() => navigate(`/patient/${hhNumber}`)} className="btn-secondary w-full mt-8 py-3">
+              ← Back to Dashboard
+            </button>
+          </div>
         </div>
       </div>
-      </div>
+    </div>
   );
 };
 

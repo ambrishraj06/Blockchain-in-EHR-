@@ -1,43 +1,76 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "./NavBar";
-// No need to import "./LandingPage.css" if you are using Tailwind CSS classes
 
 const RegisterPage = () => {
   const navigate = useNavigate();
 
+  const roles = [
+    {
+      title: "Doctor Registration",
+      desc: "Register as a healthcare professional to access patient records and write prescriptions",
+      path: "/doctor_registration",
+      icon: (
+        <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+      ),
+      gradient: "from-accent-cyan to-accent-blue",
+    },
+    {
+      title: "Patient Registration",
+      desc: "Create your patient account to manage your health records securely on blockchain",
+      path: "/patient_registration",
+      icon: (
+        <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+      ),
+      gradient: "from-primary-500 to-emerald-500",
+    },
+    {
+      title: "Diagnostic Registration",
+      desc: "Register your diagnostic center to upload test reports and EHR documents",
+      path: "/diagnostic_registration",
+      icon: (
+        <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+      ),
+      gradient: "from-accent-blue to-accent-purple",
+    },
+  ];
+
   return (
-    <div>
-        <NavBar></NavBar>
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-black to-gray-800 font-mono">
-      <div className="space-y-6 mt-[-50px] w-full max-w-xs mx-auto">
-        <button
-          className="bg-teal-500 text-white font-bold py-2 px-4 rounded w-full transition duration-300 ease-in-out transform hover:scale-110 hover:bg-gray-600" // Added transform and grey color for hover
-          onClick={() => {
-            navigate("/doctor_registration");
-          }}
-        >
-          Doctor Registration
-        </button>
-        <button
-          className="bg-teal-500 text-white font-bold py-2 px-4 rounded w-full transition duration-300 ease-in-out transform hover:scale-110 hover:bg-gray-600" // Added transform and grey color for hover
-          onClick={() => {
-            navigate("/patient_registration");
-          }}
-        >
-          Patient Registration
-        </button>
-        <button
-          className="bg-teal-500 text-white font-bold py-2 px-4 rounded w-full transition duration-300 ease-in-out transform hover:scale-110 hover:bg-gray-600" // Added transform and grey color for hover
-          onClick={() => {
-            navigate("/diagnostic_registration");
-          }}
-        >
-          Diagnostics Registration
-        </button>
+    <div className="min-h-screen bg-dark">
+      <NavBar />
+      <div className="min-h-screen flex items-center justify-center pt-20 px-4">
+        <div className="max-w-4xl w-full">
+          <div className="text-center mb-12 animate-fadeInUp">
+            <h1 className="text-4xl font-display font-bold text-white mb-3">Create Account</h1>
+            <p className="text-gray-400">Choose your role to get started</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {roles.map((role, i) => (
+              <button
+                key={role.title}
+                onClick={() => navigate(role.path)}
+                className="glass-card p-8 text-center group animate-fadeInUp cursor-pointer"
+                style={{ animationDelay: `${i * 0.1}s` }}
+              >
+                <div className={`w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br ${role.gradient} bg-opacity-20 flex items-center justify-center text-white mb-5 transition-all duration-300 group-hover:scale-110 group-hover:shadow-glow`}>
+                  {role.icon}
+                </div>
+                <h3 className="text-lg font-display font-semibold text-white mb-2 group-hover:text-primary-500 transition-colors">{role.title}</h3>
+                <p className="text-gray-500 text-sm">{role.desc}</p>
+              </button>
+            ))}
+          </div>
+
+          <p className="text-center text-gray-600 mt-10 text-sm animate-fadeInUp" style={{ animationDelay: "0.4s" }}>
+            Already have an account?{" "}
+            <button onClick={() => navigate("/login")} className="text-primary-500 hover:text-primary-400 font-medium transition-colors">
+              Sign in
+            </button>
+          </p>
+        </div>
       </div>
-      </div>
-      </div>
+    </div>
   );
 };
 

@@ -29,7 +29,12 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "test:coverage": "react-scripts test --coverage",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "ganache": "node scripts/start-ganache.js",
+    "deploy": "node scripts/deploy-contracts.js",
+    "deploy:reset": "node scripts/deploy-contracts.js --reset",
+    "dev": "concurrently -n \"GANACHE,DEPLOY,FRONTEND\" -c \"yellow,cyan,green\" --kill-others-on-fail \"npm run ganache\" \"wait-on tcp:7546 && npm run deploy\" \"wait-on tcp:7546 && npm start\"",
+    "dev:reset": "concurrently -n \"GANACHE,DEPLOY,FRONTEND\" -c \"yellow,cyan,green\" --kill-others-on-fail \"npm run ganache\" \"wait-on tcp:7546 && npm run deploy:reset\" \"wait-on tcp:7546 && npm start\""
   },
   "eslintConfig": {
     "extends": [
@@ -51,7 +56,10 @@
   },
   "devDependencies": {
     "@testing-library/react": "^14.0.0",
+    "concurrently": "^9.2.1",
+    "ganache": "^7.9.2",
     "jest": "^27.5.1",
-    "tailwindcss": "^3.3.5"
+    "tailwindcss": "^3.3.5",
+    "wait-on": "^9.0.4"
   }
 }

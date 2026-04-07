@@ -1,112 +1,97 @@
 import React, { useState, useEffect } from "react";
 import Web3 from "web3";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import NavBar_Logout from "./NavBar_Logout";
 import PatientRegistration from "../build/contracts/PatientRegistration.json";
+import UploadEhr from "../build/contracts/UploadEhr.json";
+import { getIPFSUrl } from "../pinata";
 
 const DoctorViewPatient = () => {
-  const { hhNumber } = useParams(); // Retrieve the hhNumber from the URL parameter
+  const { hhNumber, patientHH } = useParams();
   const navigate = useNavigate();
-
-  const doctorForm = () => {
-    navigate("/doctor/"+hhNumber+"/doctorform");
-  };
-
-  const viewPatientRecords = () => {
-    navigate("/patient/"+hhNumber+"/viewrecords");
-  };
-
-  const [web3, setWeb3] = useState(null);
-  const [contract, setContract] = useState(null);
   const [patientDetails, setPatientDetails] = useState(null);
-  const [error, setError] = useState(null);
+  const [records, setRecords] = useState([]);
 
   useEffect(() => {
     const init = async () => {
-      if (window.ethereum) {
-        const web3Instance = new Web3(window.ethereum);
-        setWeb3(web3Instance);
-
-        const networkId = await web3Instance.eth.net.getId();
-        const deployedNetwork = PatientRegistration.networks[networkId];
-        const contractInstance = new web3Instance.eth.Contract(
-          PatientRegistration.abi,
-          deployedNetwork && deployedNetwork.address,
-        );
-        setContract(contractInstance);
-        try {
-          const result = await contractInstance.methods.getPatientDetails(hhNumber).call();
-          setPatientDetails(result);
-        } catch (error) {
-          console.error('Error retrieving patient details:', error);
-          setError('Error retrieving patient details');
+      if (!window.ethereum) return;
+      const web3 = new Web3(window.ethereum);
+      const networkId = await web3.eth.net.getId();
+      try {
+        const patientContract = new web3.eth.Contract(PatientRegistration.abi, PatientRegistration.networks[networkId]?.address);
+        const details = await patientContract.methods.getPatientDetails(patientHH || hhNumber).call();
+        setPatientDetails(details);
+        if (UploadEhr.networks[networkId]) {
+          const uploadContract = new web3.eth.Contract(UploadEhr.abi, UploadEhr.networks[networkId].address);
+          const recs = await uploadContract.methods.getRecords(patientHH || hhNumber).call();
+          setRecords(recs);
         }
-      } else {
-        console.log('Please install MetaMask extension');
-        setError('Please install MetaMask extension');
-      }
+      } catch (e) { console.error("Error:", e); }
     };
-
     init();
-  }, [hhNumber]);
+  }, [hhNumber, patientHH]);
 
-  const cancelOperation = () => {
-    navigate(-1);
-  };
+  const fields = patientDetails ? [
+    { label: "Name", value: patientDetails.name },
+    { label: "DOB", value: patientDetails.dateOfBirth },
+    { label: "Gender", value: patientDetails.gender },
+    { label: "Blood Group", value: patientDetails.bloodGroup },
+    { label: "Email", value: patientDetails.email },
+  ] : [];
 
   return (
-    <div>
-    <NavBar_Logout></NavBar_Logout>
-    <div className="bg-b to-gray-500 p-4 sm:p-10 font-mono text-white h-30 flex flex-col justify-center items-center">
-      <h2 className="text-2xl sm:text-4xl font-bold mb-6">Patient's Profile</h2>
-      <br/>
+    <div className="min-h-screen bg-dark">
+      <NavBar_Logout />
+      <div className="max-w-5xl mx-auto pt-28 pb-16 px-4">
+        <div className="mb-8 animate-fadeInUp">
+          <h1 className="text-3xl font-display font-bold text-white mb-2">Patient Record View</h1>
+          <p className="text-gray-400">Viewing medical records for authorized patient</p>
+        </div>
+
+        {/* Patient Info */}
         {patientDetails && (
-          <center>
-          <p className="text-xl sm:text-3xl mb-20">
-          Name : {" "}
-            <span className="font-bold text-yellow-500">{patientDetails.name}</span>{"\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0"}
-          DOB : {" "}
-            <span className="font-bold text-yellow-500">{patientDetails.dateOfBirth}</span>{"\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0"}
-          Gender : {" "}
-            <span className="font-bold text-yellow-500">{patientDetails.gender}</span>
-          <br />
-          <br />
-          BloodGroup : {" "}
-            <span className="font-bold text-yellow-500">{patientDetails.bloodGroup}</span>{"\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0"}
-          Address : {" "}
-            <span className="font-bold text-yellow-500">{patientDetails.homeAddress}</span>{"\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0"}
-            <br></br><br></br>
-          Email-Id : {" "}
-            <span className="font-bold text-yellow-500">{patientDetails.email}</span>
-        </p>
-        </center>
-      )}
+          <div className="glass-card p-6 mb-6 animate-fadeInUp" style={{ animationDelay: "0.1s" }}>
+            <h2 className="text-lg font-display font-semibold text-white mb-4">Patient Information</h2>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {fields.map((f, i) => (
+                <div key={i} className="p-3 rounded-lg bg-white/[0.03]">
+                  <p className="text-gray-500 text-xs mb-1">{f.label}</p>
+                  <p className="text-white text-sm font-medium">{f.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Records */}
+        <div className="glass-card p-6 animate-fadeInUp" style={{ animationDelay: "0.2s" }}>
+          <h2 className="text-lg font-display font-semibold text-white mb-4">
+            Medical Records <span className="ml-2 badge badge-success">{records.length}</span>
+          </h2>
+          {records.length === 0 ? (
+            <p className="text-gray-500 text-center py-8">No records available</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="premium-table">
+                <thead><tr><th>#</th><th>Date</th><th>IPFS CID</th><th>Action</th></tr></thead>
+                <tbody>
+                  {records.map((r, i) => (
+                    <tr key={i}>
+                      <td className="font-mono text-primary-500">{i + 1}</td>
+                      <td>{r.timeStamp}</td>
+                      <td className="font-mono text-xs max-w-[200px] truncate">{r.medicalRecordHash}</td>
+                      <td><a href={getIPFSUrl(r.medicalRecordHash)} target="_blank" rel="noopener noreferrer" className="text-primary-500 hover:text-primary-400 text-sm font-medium">View ↗</a></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <button onClick={() => navigate(-1)} className="btn-secondary mt-8 py-3 px-6">← Back</button>
       </div>
-      <div>
-      <center>
-      <button
-            onClick={viewPatientRecords}
-            className="my-2 px-4 sm:px-8 py-4 sm:py-5 w-full sm:w-1/4 rounded-lg bg-teal-500 hover:bg-gray-600 transition-colors duration-300"
-          >
-            View Record
-          </button>
-          {"\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0"}
-          <button
-          onClick={doctorForm}
-          className="my-2 px-4 sm:px-8 py-4 sm:py-5 w-full sm:w-1/4 rounded-lg bg-teal-500 hover:bg-gray-600 transition-colors duration-300"
-          >
-          Prescription Consultancy
-          </button>
-          {"\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0"}
-          <button
-            onClick={cancelOperation}
-            className="my-2 px-4 sm:px-8 py-4 sm:py-5 w-full sm:w-1/4 rounded-lg bg-teal-500 hover:bg-gray-600 transition-colors duration-300"
-          >
-            Close
-          </button>
-        </center>
-      </div>
-      </div>
+    </div>
   );
 };
 
