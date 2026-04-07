@@ -32,8 +32,8 @@ A blockchain-powered Electronic Health Record system built with **React**, **Sol
 ### 1. Clone & Install
 
 ```bash
-git clone <repo-url>
-cd Secure-Electronic-Health-Records
+git clone <https://github.com/ambrishraj06/Blockchain-in-EHR-.git>
+cd Blockchain-in-EHR-
 npm install
 ```
 
